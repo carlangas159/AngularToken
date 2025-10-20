@@ -1,0 +1,123 @@
+﻿version: '3.8'
+name: microservices_app
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: microservices
+    ports:
+      - '3316:3306'
+    volumes:
+      # Bind mount a la carpeta del proyecto: los datos se almacenan en ./data/mysql
+      - ./data/mysql:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    networks:
+      - app-network
+
+  security:
+    build:
+      context: ./services/security
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_DATABASE: microservices
+    ports:
+      - '3001:3001'
+    networks:
+      - app-network
+
+  clients:
+    build:
+      context: ./services/clients
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+      - security
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_DATABASE: microservices
+      REDIS_HOST: redis
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      SECURITY_URL: http://security:3001
+    ports:
+      - '3002:3002'
+    networks:
+      - app-network
+
+  mails:
+    build:
+      context: ./services/mails
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+      - rabbitmq
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_DATABASE: microservices
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile
+    ports:
+      - '4200:4200'
+    depends_on:
+      - security
+      - clients
+    networks:
+      - app-network
+
+  db_init:
+    image: node:18-alpine
+    depends_on:
+      - mysql
+    volumes:
+      - ./scripts:/scripts:ro
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_DATABASE: microservices
+    command: ["node", "/scripts/init_data.js"]
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+# Nota: se usa bind mount (./data/mysql) en lugar de un named volume para que los datos
+# queden dentro del workspace. Añadir ./data/ a .gitignore para evitar indexado en VCS o IDE.

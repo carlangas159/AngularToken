@@ -1,0 +1,20 @@
+{
+  "name": "security-service",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "fastify": "^4.0.0",
+    "@fastify/cors": "^8.0.0",
+    "mysql2": "^3.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.0.0",
+    "typescript": "^5.2.2",
+    "@types/node": "^18.0.0"
+  }
+}

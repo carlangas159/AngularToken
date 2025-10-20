@@ -1,0 +1,18 @@
+<div style="max-width:600px;margin:20px auto;font-family:Arial, sans-serif;">
+  <h1>Registro de Clientes</h1>
+
+  <div style="margin-bottom:8px;color:gray">Estado: {{ status }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label>Token (editable)</label>
+    <input formControlName="token" placeholder="Token de 8 dígitos" style="width:100%;padding:8px;margin-bottom:8px;" />
+
+    <label>Nombre</label>
+    <input formControlName="name" placeholder="Nombre" style="width:100%;padding:8px;margin-bottom:8px;" />
+
+    <label>Email</label>
+    <input formControlName="email" placeholder="correo@ejemplo.com" style="width:100%;padding:8px;margin-bottom:8px;" />
+
+    <button type="submit" [disabled]="form.invalid" style="padding:10px 16px">Registrar</button>
+  </form>
+</div>
