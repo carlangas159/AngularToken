@@ -1,0 +1,20 @@
+﻿# Ignorar datos locales de bases y archivos generados
+/data/
+
+# Node
+node_modules/
+/npm-debug.log
+/yarn-error.log
+
+# Angular build
+dist/
+/out-tsc/
+
+# IDEs
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+

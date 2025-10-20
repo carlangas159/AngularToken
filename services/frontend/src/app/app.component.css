@@ -1,0 +1,11 @@
+/* Estilos mínimos para el formulario */
+:host {
+  display: block;
+}
+input {
+  box-sizing: border-box;
+}
+button[disabled] {
+  opacity: 0.6;
+}
+

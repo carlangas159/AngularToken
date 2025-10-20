@@ -1,0 +1,15 @@
+/* Estilos globales mínimos para la app Angular */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #fafafa;
+  color: #222;
+}
+
+.container {
+  max-width: 800px;
+  margin: 24px auto;
+  padding: 16px;
+}
+

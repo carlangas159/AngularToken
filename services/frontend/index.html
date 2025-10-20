@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Clientes - Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { padding: 8px; margin: 6px 0; width: 100%; max-width: 400px; }
+    .container { max-width: 480px; }
+    .token { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Registro de Clientes (Demo)</h1>
+
+    <label>Token de seguridad (obtenido del microservicio de seguridad)</label>
+    <input id="token" />
+
+    <label>Nombre</label>
+    <input id="name" placeholder="Nombre" />
+
+    <label>Email</label>
+    <input id="email" placeholder="correo@ejemplo.com" />
+
+    <button id="btnRegister">Registrar</button>
+
+    <div id="status" style="margin-top:12px"></div>
+  </div>
+
+  <script src="/sdk.js"></script>
+  <script>
+    (async () => {
+      const status = document.getElementById('status');
+      try {
+        const token = await SDK.getToken();
+        document.getElementById('token').value = token;
+        status.innerText = 'Token obtenido correctamente.';
+      } catch (err) {
+        status.innerText = 'No se pudo obtener token: ' + (err.message || err);
+      }
+
+      document.getElementById('btnRegister').addEventListener('click', async () => {
+        const name = (document.getElementById('name') as HTMLInputElement).value;
+        const email = (document.getElementById('email') as HTMLInputElement).value;
+        const token = (document.getElementById('token') as HTMLInputElement).value;
+        status.innerText = 'Enviando registro...';
+        try {
+          const res = await SDK.registerClient({ name, email, token });
+          if (res.ok) {
+            status.innerText = 'Registro exitoso. ID: ' + res.id;
+          } else {
+            status.innerText = 'Error: ' + (res.error || JSON.stringify(res));
+          }
+        } catch (err) {
+          status.innerText = 'Error enviando registro: ' + (err.message || err);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
