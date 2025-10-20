@@ -131,6 +131,31 @@ Posibles problemas y soluciones
   - Asegúrate de que `security` está levantado y accesible en la URL y puerto configurados en `services/clients`.
   - Revisar logs de `clients` y `security` usando `docker-compose logs -f clients` y `docker-compose logs -f security`.
 
+- Si la tabla `mails` está vacía y no hay mensajes en la cola `mail_queue` (problema frecuente):
+  - Motivo común: el parámetro `enable_emails` no está presente en Redis (o es `false`). El microservicio `clients` solo publica a RabbitMQ si `enable_emails` == `true`.
+  - Comprobar el valor actual en Redis (Windows cmd.exe):
+
+    docker-compose exec redis redis-cli GET enable_emails
+
+    - Si la salida es `(nil)` o `false`, entonces no se publicarán correos.
+  - Para forzar la publicación (activar envíos) ejecute:
+
+    docker-compose exec redis redis-cli SET enable_emails true
+
+  - Después de activar la clave, vuelva a realizar un registro de cliente o use el endpoint diagnóstico (si está disponible):
+
+    curl -s -X POST http://localhost:3002/diagnostic/publish -H "Content-Type: application/json" -d "{\"name\":\"Diag\",\"email\":\"diag@local\"}"
+
+  - Verifique la cola y la tabla `mails`:
+
+    curl -u guest:guest http://localhost:15672/api/queues/%2F/mail_queue
+
+    docker-compose exec mysql mysql -uroot -prootpass -e "USE microservices; SELECT * FROM mails ORDER BY id DESC LIMIT 10;"
+
+  - Si `clients` registra que intentó publicar (logs con "Intentando publicar" o "Mensaje publicado correctamente") pero la cola no contiene mensajes, revise que `RABBITMQ_URL` apunte al contenedor correcto y que RabbitMQ esté en funcionamiento (`docker-compose ps` y `docker-compose logs rabbitmq`).
+
+- En general, para problemas de conectividad entre servicios (Redis, RabbitMQ, MySQL), revisar logs individuales y usar los comandos `docker-compose logs -f <service>` y `docker-compose ps` para confirmar que los contenedores están corriendo y accesibles.
+
 Buenas prácticas y siguientes pasos sugeridos
 -------------------------------------------
 - Añadir validaciones unitarias e integración para los microservicios (`security`, `clients`, `mails`).
