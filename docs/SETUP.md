@@ -69,7 +69,7 @@ Inicializar y levantar todo (primer arranque)
 --------------------------------------------
 1) Abrir un terminal (Windows cmd.exe) y ubicarse en la carpeta raíz del proyecto (donde está `docker-compose.yml`):
 
-   cd C:\Users\carlo\WebstormProjects\Linkediin
+   cd ./
 
 2) Construir y levantar los contenedores (modo interactivo):
 

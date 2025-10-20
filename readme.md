@@ -33,7 +33,7 @@ Arranque rápido (Windows - cmd.exe)
 1. Abrir cmd.exe en la carpeta raíz del proyecto (donde está `docker-compose.yml`).
 
 ```bat
-cd C:\Users\carlo\WebstormProjects\Linkediin
+cd ./
 ```
 
 2. Construir y levantar todos los contenedores:
